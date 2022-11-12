@@ -5,6 +5,7 @@ public class Juego
     private List<Player> _players = new List<Player>();
     private Deck _mazo = new Deck();
     private Board _mesa = new Board();
+    private Combinator _combinator = new Combinator();
     private LocalView _viewFirstPlayer = new LocalView();
     private LocalView _viewSecondPlayer = new LocalView();
     private List<LocalView> _viewsPlayer = new List<LocalView>(); 
@@ -65,43 +66,9 @@ public class Juego
         int option = view.GetInput(player.GetHand().Count); 
         _mesa.AddCardToBoard(player.GetHand()[option]);
         player.RemoveFromHand(player.GetHand()[option]);
-        PlayOptions(GetCombination(_mesa.GetBoard(), view), player, view);
+        PlayOptions(_combinator.GetCombination(_mesa.GetBoard(), view), player, view);
     }
     //https://stackoverflow.com/questions/7802822/all-possible-combinations-of-a-list-of-values
-    public List<List<Card>> GetCombination(List<Card> list, LocalView view)
-    {
-        List<List<Card>> optionList = new List<List<Card>>();
-        double count = Math.Pow(2, list.Count);
-        for (int i = 1; i <= count - 1; i++)
-        {
-            List<Card> availablePlays = new List<Card>();
-            string str = Convert.ToString(i, 2).PadLeft(list.Count, '0');
-            
-            for (int j = 0; j < str.Length; j++)
-            {
-                if (str[j] == '1') { availablePlays.Add(list[j]); }
-            }
-            if (GetSum(availablePlays)) { optionList.Add(availablePlays); }
-        }
-
-        int index = 0;
-        foreach (var cardList in optionList)
-        {
-            view.Option(index);
-            foreach (var card in cardList) { view.PlainText("    " + card.GetFace() + " de " + card.GetSuit()); }
-            index++;
-        }
-
-        return optionList;
-    }
-    public bool GetSum(List<Card> cards)
-    {
-        int totalValue = 0;
-        foreach (var card in cards)
-        { totalValue = totalValue + card.GetValue(); }
-        if (totalValue == 15) { return true; }
-        return false;
-    }
     public void PlayOptions(List<List<Card>> optionList, Player player, LocalView view )
     {
         if (optionList.Count == 0) { view.NoCombinations(); }
